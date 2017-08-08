@@ -15,12 +15,17 @@ import com.example.jokedisplay.JokeActivity;
 import java.util.concurrent.ExecutionException;
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements EndpointsAsyncTask.OnCompleteListener {
+
+    private EndpointsAsyncTask mEndpointsAsyncTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mEndpointsAsyncTask = new EndpointsAsyncTask();
+        mEndpointsAsyncTask.setOnCompleteListener(this);
 
         MainActivityFragment mainActivityFragment = new MainActivityFragment();
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment, mainActivityFragment).commit();
@@ -51,25 +56,15 @@ public class MainActivity extends AppCompatActivity {
 
     public void tellJoke(View view) {
 
-        String joke = "";
-        try {
-            joke = (new EndpointsAsyncTask().execute(this)).get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
+        mEndpointsAsyncTask.execute();
+    }
 
+
+    @Override
+    public void onComplete(String joke) {
         Intent intent = new Intent(this, JokeActivity.class);
         intent.putExtra(JokeActivity.ARGUMENT_JOKE_KEY, joke);
         startActivity(intent);
 
-
     }
-
-
-
-
-
-
 }
